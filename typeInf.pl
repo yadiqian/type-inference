@@ -1,3 +1,14 @@
+:- dynamic gvar/2.
+
+typeExp(X, int) :-
+    integer(X).
+
+typeExp(X, float) :-
+    float(X).
+
+typeExp(X, bool) :-
+    typeBoolExp(X).
+
 /* match functions by unifying with arguments 
     and infering the result
 */
@@ -11,6 +22,7 @@ typeExp(Fct, T):-
     functionType(Fname, TArgs), /* get type of arguments from definition */
     typeExpList(FType, TArgs). /* recurisvely match types */
 
+
 /* propagate types */
 typeExp(T, T).
 
@@ -20,7 +32,27 @@ typeExpList([Hin|Tin], [Hout|Tout]):-
     typeExp(Hin, Hout), /* type infer the head */
     typeExpList(Tin, Tout). /* recurse */
 
+hasComparison(int).
+hasComparison(float).
+hasComparison(string).
+
+hasAdd(int).
+hasAdd(float).
+
+/* predicate to infer types for boolean expressions */
+typeBoolExp(true).
+typeBoolExp(false). 
+typeBoolExp( X < Y) :- 
+    typeExp(X, T),
+    typeExp(Y, T),
+    hasComparison(T).
+
+
 /* TODO: add statements types and their type checking */
+
+typeStatement(X, T) :-
+    typeExp(X, T).
+
 /* global variable definition
     Example:
         gvLet(v, T, int) ~ let v = 3;
@@ -30,6 +62,14 @@ typeStatement(gvLet(Name, T, Code), unit):-
     typeExp(Code, T), /* infer the type of Code and ensure it is T */
     bType(T), /* make sure we have an infered type */
     asserta(gvar(Name, T)). /* add definition to database */
+
+/* if statements are encodes as:
+    if(condition:Boolean, trueCode: [Statements], falseCode: [Statements])
+*/
+typeStatement(if(Cond, TrueB, FalseB), T) :-
+    typeBoolExp(Cond),
+    typeCode(TrueB, T),
+    typeCode(FalseB, T).
 
 /* Code is simply a list of statements. The type is 
     the type of the last statement 
@@ -51,6 +91,7 @@ infer(Code, T) :-
 bType(int).
 bType(float).
 bType(string).
+bType(bool).
 bType(unit). /* unit type for things that are not expressions */
 /*  functions type.
     The type is a list, the last element is the return type
@@ -85,7 +126,14 @@ deleteGVars():-retractall(gvar), asserta(gvar(_X,_Y):-false()).
     TODO: add more functions
 */
 
+/*
+
+iplus :: int -> int -> int
+
+*/
+
 fType(iplus, [int,int,int]).
+fType((+), [T, T, T]) :- hasAdd(T).
 fType(fplus, [float, float, float]).
 fType(fToInt, [float,int]).
 fType(iToFloat, [int,float]).
