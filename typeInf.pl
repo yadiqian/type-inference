@@ -9,6 +9,9 @@ typeExp(X, float) :-
 typeExp(X, bool) :-
     typeBoolExp(X).
 
+typeExp(X, string) :-
+    string(X).
+
 /* match functions by unifying with arguments 
     and infering the result
 */
@@ -36,16 +39,32 @@ hasComparison(int).
 hasComparison(float).
 hasComparison(string).
 
-hasAdd(int).
-hasAdd(float).
-
 /* predicate to infer types for boolean expressions */
 typeBoolExp(true).
 typeBoolExp(false). 
-typeBoolExp( X < Y) :- 
+typeBoolExp(X < Y) :-
+    canCompare(X, Y).
+typeBoolExp(X > Y) :-
+    canCompare(X, Y).
+typeBoolExp(X = Y) :-
+    canCompare(X, Y).
+% typeBoolExp(X <> Y) :-
+%     canCompare(X, Y).
+typeBoolExp(and(X, Y)) :-
+    areBool(X, Y).
+typeBoolExp(or(X, Y)) :-
+    areBool(X, Y).
+typeBoolExp(not(X)) :-
+    typeBoolExp(X).
+    
+canCompare(X, Y) :- 
     typeExp(X, T),
     typeExp(Y, T),
     hasComparison(T).
+
+areBool(X, Y) :-
+    typeBoolExp(X),
+    typeBoolExp(Y).
 
 
 /* TODO: add statements types and their type checking */
@@ -122,25 +141,42 @@ deleteGVars():-retractall(gvar), asserta(gvar(_X,_Y):-false()).
 /*  builtin functions
     Each definition specifies the name and the 
     type as a function type
-
-    TODO: add more functions
 */
 
-/*
-
-iplus :: int -> int -> int
-
-*/
-
+% iplus :: int -> int -> int
 fType(iplus, [int,int,int]).
-fType((+), [T, T, T]) :- hasAdd(T).
+% fplus :: float -> float -> float
 fType(fplus, [float, float, float]).
+% ifplus :: int -> float -> float
+fType(ifplus, [int, float, float]).
+% fiplus :: float -> int -> float
+fType(fiplus, [float, int, float]).
+
+% iminus :: int -> int -> int
+fType(iminus, [int, int, int]).
+% fminus :: float -> float -> float
+fType(fminus, [float, float, float]).
+% ifminus :: int -> float -> float
+fType(ifminus, [int, float, float]).
+% fiminus :: float -> int -> float
+fType(fiminus, [float, int, float]).
+
+% and :: bool -> bool -> bool
+fType(and, [bool, bool, bool]).
+% or :: bool -> bool -> bool
+fType(or, [bool, bool, bool]).
+% not :: bool -> bool
+fType(not, [bool, bool]).
+
+% fToInt :: float -> int
 fType(fToInt, [float,int]).
+% iToFloat :: int -> float
 fType(iToFloat, [int,float]).
+% print :: a -> unit
 fType(print, [_X, unit]). /* simple print */
 
 /* Find function signature
-   A function is either buld in using fType or
+   A function is either built in using fType or
    added as a user definition with gvar(fct, List)
 */
 
