@@ -25,9 +25,12 @@ typeExp(Fct, T):-
     functionType(Fname, TArgs), /* get type of arguments from definition */
     typeExpList(FType, TArgs). /* recurisvely match types */
 
-
 /* propagate types */
-typeExp(T, T).
+typeExp(T, T) :- 
+    bType(T).
+
+typeExp(X, T) :-
+    gvar(X, T).
 
 /* list version to allow function mathine */
 typeExpList([], []).
@@ -37,11 +40,13 @@ typeExpList([Hin|Tin], [Hout|Tout]):-
 
 hasComparison(int).
 hasComparison(float).
-hasComparison(string).
+hasComparison(string). 
 
 /* predicate to infer types for boolean expressions */
 typeBoolExp(true).
-typeBoolExp(false). 
+typeBoolExp(false).
+typeBoolExp(X) :-
+  gvar(X, bool). 
 typeBoolExp(X < Y) :-
     canCompare(X, Y).
 typeBoolExp(X > Y) :-
@@ -76,7 +81,7 @@ typeStatement(X, T) :-
     Example:
         gvLet(v, T, int) ~ let v = 3;
  */
-typeStatement(gvLet(Name, T, Code), unit):-
+typeStatement(gvLet(Name, T, Code), unit) :-
     atom(Name), /* make sure we have a bound name */
     typeExp(Code, T), /* infer the type of Code and ensure it is T */
     bType(T), /* make sure we have an infered type */
@@ -89,6 +94,17 @@ typeStatement(if(Cond, TrueB, FalseB), T) :-
     typeBoolExp(Cond),
     typeCode(TrueB, T),
     typeCode(FalseB, T).
+
+/* let in :
+    let n = Statement in [Statements]
+*/
+typeStatement(let(Name, Code, Stmts), Type) :-
+    atom(Name),
+    typeExp(Code, T),
+    bType(T),
+    asserta(gvar(Name, T)),
+    typeCode(Stmts, Type),
+    retract(gvar(Name, T)).
 
 /* Code is simply a list of statements. The type is 
     the type of the last statement 
