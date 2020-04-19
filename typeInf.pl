@@ -51,7 +51,7 @@ typeBoolExp(X < Y) :-
     canCompare(X, Y).
 typeBoolExp(X > Y) :-
     canCompare(X, Y).
-typeBoolExp(X = Y) :-
+typeBoolExp(X == Y) :-
     canCompare(X, Y).
 % typeBoolExp(X <> Y) :-
 %     canCompare(X, Y).
@@ -87,6 +87,9 @@ typeStatement(gvLet(Name, T, Code), unit) :-
     bType(T), /* make sure we have an infered type */
     asserta(gvar(Name, T)). /* add definition to database */
 
+/* global function definition
+*/
+
 /* if statements are encodes as:
     if(condition:Boolean, trueCode: [Statements], falseCode: [Statements])
 */
@@ -96,15 +99,21 @@ typeStatement(if(Cond, TrueB, FalseB), T) :-
     typeCode(FalseB, T).
 
 /* let in :
-    let n = Statement in [Statements]
+    let n = Statement in [Statement]
 */
-typeStatement(let(Name, Code, Stmts), Type) :-
+typeStatement(lvLet(Name, T, Code, Stmts), Type) :-
     atom(Name),
     typeExp(Code, T),
     bType(T),
     asserta(gvar(Name, T)),
     typeCode(Stmts, Type),
     retract(gvar(Name, T)).
+
+/* code blocks
+    [Statement]
+*/
+typeStatement(block(Code), T) :-
+    typeCode(Code, T).
 
 /* Code is simply a list of statements. The type is 
     the type of the last statement 
@@ -176,6 +185,8 @@ fType(fminus, [float, float, float]).
 fType(ifminus, [int, float, float]).
 % fiminus :: float -> int -> float
 fType(fiminus, [float, int, float]).
+
+fType(itimes, [int, int, int]).
 
 % and :: bool -> bool -> bool
 fType(and, [bool, bool, bool]).

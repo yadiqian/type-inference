@@ -169,22 +169,6 @@ test(typeStatement_gvar, [nondet, true(T == int)]) :- % should succeed with T=in
     assertion(X == int), assertion( Y == int), % make sure the types are int
     gvar(v, int). % make sure the global variable is defined
 
-% same test as above but with infer 
-test(infer_gvar, [nondet]) :-
-    infer([gvLet(v, T, iplus(X, Y))], unit),
-    assertion(T==int), assertion(X==int), assertion(Y=int),
-    gvar(v,int).
-
-test(infer, [nondet]) :-
-    infer([
-      gvLet(a, T, fToInt(X)),
-      gvLet(b, U, a < 3),
-      if(b, [print(b)], [print(a)])
-    ], unit),
-    assertion(T==int), assertion(X==float), assertion(U==bool),
-    gvar(a, int),
-    gvar(b, bool).
-
 % test custom function with mocked definition
 test(mockedFct, [nondet]) :-
     deleteGVars(), % clean up variables since we cannot use infer
@@ -200,10 +184,14 @@ test(simple_if, [nondet]) :-
     typeStatement(if(iplus(3, 5) > 0, [if(true, [1], [2])], [if(true, [3], [4])]), int).
 
 test(let, [nondet]) :-
-  typeStatement(let(x, iplus(Y, Z), [gvLet(w, T, x)]), Type),
-  assertion(Y == int), assertion(Z == int), assertion(T == int), 
-  assertion(Type == unit),
-  \+ gvar(x, int),
-  gvar(w, int).
+    typeStatement(lvLet(x, Tx, iplus(Y, Z), [gvLet(w, Tw, x)]), T),
+    assertion(Y == int), assertion(Z == int), assertion(Tx == int),
+    assertion(Tw == int), assertion(T == unit),
+    \+ gvar(x, int),
+    gvar(w, int).
+
+test(block, [nondet]) :-
+    typeStatement(block([print(true), print(3), iplus(int, int)]), T),
+    assertion(T == int).
 
 :-end_tests(typeInf).
