@@ -57,7 +57,7 @@ test(infer_lvLet, [nondet]) :-
       \+ gvar(y, _Y),
       \+ gvar(z, _Z).
 
-%global variables from local scope
+% global variables from local scope
 test(infer_global_from_local_scope, [nondet]) :-
   deleteGVars(),
   infer([
@@ -83,5 +83,26 @@ test(infer_global_from_local_scope, [nondet]) :-
       \+ gvar(x, _X),
       \+ gvar(y, _Y),
       \+ gvar(z, _Z).
+
+% test definining and calling a function
+test(infer_functionDefCall, [nondet]) :-
+  deleteGVars(),
+  infer([
+      funcLet(runTest, [string, int, bool], [<(float, float)]),
+      runTest(X,Y)
+      ], bool),
+      assertion(X==string),
+      assertion(Y==int).
+
+% test definining and calling a function
+test(infer_functionDefCall, [nondet]) :-
+  deleteGVars(),
+  infer([
+      funcLet(runTest, [string, int, float], [ifminus(4, -5.0)]),
+      runTest(X,Y)
+      ], T),
+      assertion(X==string),
+      assertion(Y==int),
+      assertion(T==float).
 
 :-end_tests(typeInf).

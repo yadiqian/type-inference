@@ -160,6 +160,12 @@ test(typeExp_print_F, [fail, nondet]) :-
 test(typeExp_print_T, [true(T == unit), nondet]) :-
     typeExp(print(string), T).
 
+% paramList
+test(paramList, [nondet]) :-
+    paramList([], unit),
+    paramList([int], int),
+    paramList([string, float, void, bool], bool).
+
 % NOTE: use nondet as option to test if the test is nondeterministic
 
 % test for statement with state cleaning
@@ -175,6 +181,14 @@ test(mockedFct, [nondet]) :-
     asserta(gvar(my_fct, [int, float])), % add my_fct(int)-> float to the gloval variables
     typeExp(my_fct(X), T), % infer type of expression using or function
     assertion(X==int), assertion(T==float). % make sure the types infered are correct
+
+test(funcLet, [nondet]) :-
+    deleteGVars(),
+    typeStatement(funcLet(func, [float, string, int], [print(string), iplus(1, 2)]), T),
+    assertion(T == unit), 
+    gvar(func, [float, string, int]),
+    typeExp(func(X, Y), Type),
+    assertion(X == float), assertion(Y == string), assertion(Type == int).
 
 test(simple_if, [nondet]) :-
     typeStatement(if(true, [3], [4]), int),

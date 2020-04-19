@@ -89,6 +89,11 @@ typeStatement(gvLet(Name, T, Code), unit) :-
 
 /* global function definition
 */
+typeStatement(funcLet(Name, Params, Stmts), unit) :-
+    atom(Name),
+    typeCode(Stmts, T),
+    paramList(Params, T),
+    asserta(gvar(Name, Params)).
 
 /* if statements are encodes as:
     if(condition:Boolean, trueCode: [Statements], falseCode: [Statements])
@@ -114,6 +119,14 @@ typeStatement(lvLet(Name, T, Code, Stmts), Type) :-
 */
 typeStatement(block(Code), T) :-
     typeCode(Code, T).
+
+/* recursively check if function return type matches the 
+    definition in the parameter list
+*/
+paramList([], unit).
+paramList([T], T).
+paramList([_H|T], Type) :-
+    paramList(T, Type).
 
 /* Code is simply a list of statements. The type is 
     the type of the last statement 
