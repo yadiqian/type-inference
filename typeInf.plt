@@ -160,6 +160,26 @@ test(typeExp_print_F, [fail, nondet]) :-
 test(typeExp_print_T, [true(T == unit), nondet]) :-
     typeExp(print(string), T).
 
+% whereVar
+test(whereVar, [nondet]) :-
+    deleteGVars(),
+    whereVar([[a, Ta, ifplus(int, float)], [b, Tb, string]]),
+    assertion(Ta == float),
+    assertion(Tb == string),
+    gvar(a, float),
+    gvar(b, string).
+
+% removeVar
+test(removeVar, [nondet]) :-
+    deleteGVars(),
+    asserta(gvar(v, string)),
+    asserta(gvar(v, int)),
+    asserta(gvar(v, bool)),
+    removeVar([[v, _T1, bool], [v, _T2, int]]),
+    gvar(v, string),
+    \+ gvar(v, int),
+    \+ gvar(v, bool).
+
 % paramList
 test(paramList, [nondet]) :-
     paramList([], unit),

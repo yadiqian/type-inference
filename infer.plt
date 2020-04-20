@@ -105,4 +105,23 @@ test(infer_functionDefCall, [nondet]) :-
       assertion(Y==int),
       assertion(T==float).
 
+% test where statement
+test(infer_where, [nondet]) :-
+    deleteGVars(),
+    infer([
+      gvLet(a, Ta1, string),
+      where(fminus(a, b), [
+          [a, Ta2, ifplus(int, float)], 
+          [b, Tb, fminus(float, float)]
+        ])
+      ], T),
+      assertion(Ta1==string),
+      assertion(Ta2==float),
+      assertion(Tb==float),
+      assertion(T==float),
+      gvar(a, string),
+      gvar(a, int),
+      \+ gvar(a, float),
+      \+ gvar(b, float).
+
 :-end_tests(typeInf).

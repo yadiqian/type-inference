@@ -114,11 +114,38 @@ typeStatement(lvLet(Name, T, Code, Stmts), Type) :-
     typeCode(Stmts, Type),
     retract(gvar(Name, T)).
 
+/* where
+    Statement where
+      a = Statement
+      b = Statement
+      ...
+*/
+typeStatement(where(Code, Vars), T) :-
+    whereVar(Vars),
+    typeExp(Code, T),
+    removeVar(Vars).
+
 /* code blocks
     [Statement]
 */
 typeStatement(block(Code), T) :-
     typeCode(Code, T).
+
+whereVar([]).
+whereVar([Name, T, Code]) :- 
+    typeExp(Code, T),
+    asserta(gvar(Name, T)).
+whereVar([H|Tail]) :-
+    whereVar(H),
+    whereVar(Tail).
+
+removeVar([]).
+removeVar([Name, T, Code]) :-
+    typeExp(Code, T),
+    retract(gvar(Name, T)).
+removeVar([H|Tail]) :-
+    removeVar(H),
+    removeVar(Tail).
 
 /* recursively check if function return type matches the 
     definition in the parameter list
