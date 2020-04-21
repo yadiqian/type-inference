@@ -53,8 +53,6 @@ typeBoolExp(X > Y) :-
     canCompare(X, Y).
 typeBoolExp(X == Y) :-
     canCompare(X, Y).
-% typeBoolExp(X <> Y) :-
-%     canCompare(X, Y).
 typeBoolExp(and(X, Y)) :-
     areBool(X, Y).
 typeBoolExp(or(X, Y)) :-
@@ -91,9 +89,9 @@ typeStatement(gvLet(Name, T, Code), unit) :-
 */
 typeStatement(funcLet(Name, Params, Stmts), unit) :-
     atom(Name),
+    asserta(gvar(Name, Params)),
     typeCode(Stmts, T),
-    paramList(Params, T),
-    asserta(gvar(Name, Params)).
+    paramList(Params, T).
 
 /* if statements are encodes as:
     if(condition:Boolean, trueCode: [Statements], falseCode: [Statements])
@@ -227,6 +225,24 @@ fType(ifminus, [int, float, float]).
 fType(fiminus, [float, int, float]).
 
 fType(itimes, [int, int, int]).
+
+% itimes :: int -> int -> int
+fType(itimes, [int, int, int]).
+% ftimes :: float -> float -> float
+fType(ftimes, [float, float, float]).
+% iftimes :: int -> float -> float
+fType(iftimes, [int, float, float]).
+% fitimes :: float -> int -> float
+fType(fitimes, [float, int, float]).
+
+% idiv :: int -> int -> int
+fType(idiv, [int, int, int]).
+% fdiv :: float -> float -> float
+fType(fdiv, [float, float, float]).
+% ifdiv :: int -> float -> float
+fType(ifdiv, [int, float, float]).
+% fidiv :: float -> int -> float
+fType(fidiv, [float, int, float]).
 
 % and :: bool -> bool -> bool
 fType(and, [bool, bool, bool]).

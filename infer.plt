@@ -124,4 +124,24 @@ test(infer_where, [nondet]) :-
       \+ gvar(a, float),
       \+ gvar(b, float).
 
+% test recusive function
+test(infer_recursion, [nondet]) :-
+    deleteGVars(),
+    infer([
+      gvLet(x, Tx, 10),
+      funcLet(recur, [int, int], [
+        if(or(==(x, 0), ==(x, 1)), [1], [
+          iplus(
+            recur(iminus(x, 1)), 
+            recur(iminus(x, 2))
+          )
+        ])
+      ]),        
+      print(recur(x))
+    ], T),
+
+    gvar(x, int),
+    assertion(Tx==int),
+    assertion(T==unit).
+
 :-end_tests(typeInf).
