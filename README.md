@@ -19,25 +19,25 @@ swipl.exe
 ```
 Then load code with
 ```
-[typeInf]
+[typeInf].
 ```
 
 ## Testing the code
 There are 79 tests in ```typeInf.plt```, which contains unit tests for most predicates, and 20 tests in ```infer.plt```, which contains 20 tests for ```infer``` predicate only.
 To load the test file, do
 ```
-["typeInf.plt"]
+["typeInf.plt"].
 ```
 or 
 ```
-["infer.plt"]
+["infer.plt"].
 ```
 Then run the test use 
 ```
-run_tests
+run_tests.
 ```
 
 ## Notes
 Recursive function is also tested in ```infer.plt```.
 
-```infer.plt``` tests fail the second time it is run in the same SWI prolog interpreter possibly because gvar() is not cleaned up.
+```infer.plt``` tests fail the second time it is run in the same SWI prolog interpreter possibly because ```gvar()``` is not cleaned up.
