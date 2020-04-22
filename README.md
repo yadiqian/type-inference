@@ -1,6 +1,6 @@
 # Type inference
-In this project, I implemented some of the type inference mechanisms in Haskell using Prolog. 
-The below functionalities are implemted in this project:
+In this project, I implemented some of the type inference mechanisms used in Haskell with Prolog. 
+The below functionalities are implemted:
 
 * Add more basic functions (fType predicate)
 * global variables with expression initialization
