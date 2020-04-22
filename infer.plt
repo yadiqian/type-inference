@@ -17,6 +17,18 @@ test(infer_gvar, [nondet]) :-
   assertion(T==int), assertion(X==int), assertion(Y=int),
   gvar(v,int).
 
+% test expression computation
+test(infer_expr, [nondet]) :-
+  infer([
+      exp(fdiv(fplus(A, B), ifminus(C, B))),
+      exp(and(iftimes(C, B) < A, true)),
+      exp(concate(concate("a", "b"), concate("c", "d")))
+  ], T),
+  assertion(A==float),
+  assertion(B==float),
+  assertion(C==int),
+  assertion(T==string).
+
 % test if statements
 test(infer_if, [nondet]) :-
   infer([
@@ -142,6 +154,114 @@ test(infer_recursion, [nondet]) :-
 
     gvar(x, int),
     assertion(Tx==int),
+    assertion(T==unit).
+
+% test code blocks
+test(infer_blocks, [nondet]) :-
+    deleteGVars(),
+    infer([
+        block([
+            [
+              gvLet(x, Tx, string),
+              gvLet(y, Ty, "string"),
+              gvLet(z, Tz, concate(x, y))
+            ],
+            [
+              fitimes(float, int),
+              print(z)
+            ]
+        ])
+    ], T),
+    assertion(Tx==string),
+    assertion(Ty==string),
+    assertion(Tz==string),
+    assertion(T==unit).
+
+% test code blocks within code blocks
+test(infer_blocks_in_blocks, [nondet]) :-
+    infer([
+        block([
+          [
+            fitimes(A, B)
+          ],
+          [
+            idiv(int, 3),
+            block([[
+                concate(C, D),
+                block([[
+                    print(C),
+                    block([[
+                        print(D)
+                    ]])
+                ]])
+            ]])
+        ]])
+    ], T),
+    assertion(A==float),
+    assertion(B==int),
+    assertion(C==string),
+    assertion(D==string),
+    assertion(T==unit).
+
+% test general functionality
+test(general1, [nondet]) :-
+    deleteGVars(),
+    infer([
+        gvLet(a, Ta, fidiv(float, int)),
+        gvLet(b, Tb, ftimes(4.0, -1.0)),
+        funcLet(func, [float, float, unit], [
+            lvLet(c, Tc, fdiv(a, b), [
+                if(>(c, a), [print(c)], [print(fplus(a, c))]),
+                if(<(c, a), [print(a)], [print(fminus(a, c))]),
+                if(==(c, a), [print("Equal.")], [print(3)])
+            ])
+        ]),
+        func(a, b)
+    ], T),
+    gvar(a, float),
+    gvar(b, float),
+    \+ gvar(c, float),
+    assertion(Ta==float),
+    assertion(Tb==float),
+    assertion(Tc==float),
+    assertion(T==unit).
+
+% % test general functionality
+test(general2, [nondet]) :-
+    deleteGVars(),
+    infer([
+        gvLet(a, Ta, iminus(int, int)),
+        gvLet(b, Tb, not(==(a, a))),
+        funcLet(printOne, [int, bool], [
+            print(1),
+            true
+        ]),
+        funcLet(printTwo, [int, bool], [
+            print(2),
+            false
+        ]),
+        block(
+          [
+            [
+              if(and(a > 3, b), [
+                  printOne(a)
+              ],
+              [
+                  printTwo(a)
+              ])
+            ],
+            [
+              printOne(1),
+              printTwo(2),
+              print(a)
+            ]
+          ]
+        )
+    ], T),
+    gvar(a, int),
+    gvar(b, bool),
+    assertion(Ta==int),
+    assertion(Tb==bool),
     assertion(T==unit).
 
 :-end_tests(typeInf).

@@ -225,7 +225,9 @@ test(let, [nondet]) :-
     gvar(w, int).
 
 test(block, [nondet]) :-
-    typeStatement(block([print(true), print(3), iplus(int, int)]), T),
+    typeStatement(block([[ftimes(float, float)],
+                         [print(true), print(3), iplus(int, int)]
+                         ]), T),
     assertion(T == int).
 
 :-end_tests(typeInf).

@@ -93,6 +93,12 @@ typeStatement(funcLet(Name, Params, Stmts), unit) :-
     typeCode(Stmts, T),
     paramList(Params, T).
 
+/* expression computation
+*/
+typeStatement(exp(Exp), T) :-
+  typeExp(Exp, T),
+  bType(T).
+
 /* if statements are encodes as:
     if(condition:Boolean, trueCode: [Statements], falseCode: [Statements])
 */
@@ -127,7 +133,13 @@ typeStatement(where(Code, Vars), T) :-
     [Statement]
 */
 typeStatement(block(Code), T) :-
-    typeCode(Code, T).
+    executeBlocks(Code, T).
+
+executeBlocks([Block], T) :-
+    typeCode(Block, T).
+executeBlocks([B1, B2|Block], T) :-
+    typeCode(B1, _T),
+    executeBlocks([B2|Block], T).
 
 whereVar([]).
 whereVar([Name, T, Code]) :- 
@@ -255,6 +267,9 @@ fType(not, [bool, bool]).
 fType(fToInt, [float,int]).
 % iToFloat :: int -> float
 fType(iToFloat, [int,float]).
+
+% concate :: string -> string -> string
+fType(concate, [string, string, string]).
 % print :: a -> unit
 fType(print, [_X, unit]). /* simple print */
 
