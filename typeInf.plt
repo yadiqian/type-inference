@@ -106,6 +106,86 @@ test(typeExp_fiminus_F, [fail, nondet]) :-
 test(typeExp_ifminus_T, [true(T == float), nondet]) :-
   typeExp(fiminus(float, int), T).
 
+% itimes
+test(typeExp_itimes, [nondet]) :-
+  typeExp(itimes(int, int), int).
+
+test(typeExp_itimes_F, [fail, nondet]) :-
+  typeExp(itimes(int, int), float).
+
+test(typeExp_itimes_T, [true(T == int), nondet]) :-
+  typeExp(itimes(int, int), T).
+
+% ftimes
+test(typeExp_ftimes, [nondet]) :-
+typeExp(fminus(float, float), float).
+
+test(typeExp_ftimes_F, [fail, nondet]) :-
+  typeExp(ftimes(float, float), int).
+
+test(typeExp_ftimes_T, [true(T == float), nondet]) :-
+  typeExp(ftimes(float, float), T).
+
+% iftimes
+test(typeExp_iftimes, [nondet]) :-
+typeExp(iftimes(int, float), float).
+
+test(typeExp_iftimes_F, [fail, nondet]) :-
+typeExp(iftimes(int, float), int).
+
+test(typeExp_iftimes_T, [true(T == float), nondet]) :-
+typeExp(iftimes(int, float), T).
+
+% fitimes
+test(typeExp_fitimes, [nondet]) :-
+typeExp(fitimes(float, int), float).
+
+test(typeExp_fitimes_F, [fail, nondet]) :-
+typeExp(fitimes(float, int), int).
+
+test(typeExp_iftimes_T, [true(T == float), nondet]) :-
+typeExp(fitimes(float, int), T).
+
+% idiv
+test(typeExp_idiv, [nondet]) :-
+  typeExp(idiv(int, int), int).
+
+test(typeExp_idiv_F, [fail, nondet]) :-
+  typeExp(idiv(int, int), float).
+
+test(typeExp_idiv_T, [true(T == int), nondet]) :-
+  typeExp(idiv(int, int), T).
+
+% ftimes
+test(typeExp_fdiv, [nondet]) :-
+typeExp(fdiv(float, float), float).
+
+test(typeExp_fdiv_F, [fail, nondet]) :-
+  typeExp(fdiv(float, float), int).
+
+test(typeExp_fdiv_T, [true(T == float), nondet]) :-
+  typeExp(fdiv(float, float), T).
+
+% iftimes
+test(typeExp_ifdiv, [nondet]) :-
+typeExp(ifdiv(int, float), float).
+
+test(typeExp_ifdiv_F, [fail, nondet]) :-
+typeExp(ifdiv(int, float), int).
+
+test(typeExp_ifdiv_T, [true(T == float), nondet]) :-
+typeExp(ifdiv(int, float), T).
+
+% fitimes
+test(typeExp_fdiv, [nondet]) :-
+typeExp(fidiv(float, int), float).
+
+test(typeExp_fidiv_F, [fail, nondet]) :-
+typeExp(fidiv(float, int), int).
+
+test(typeExp_ifdiv_T, [true(T == float), nondet]) :-
+typeExp(fidiv(float, int), T).
+
 % and
 test(typeExp_and, [nondet]) :-
     typeExp(and(bool, bool), bool).
@@ -159,6 +239,18 @@ test(typeExp_print_F, [fail, nondet]) :-
 
 test(typeExp_print_T, [true(T == unit), nondet]) :-
     typeExp(print(string), T).
+
+% bType
+test(bType, [nondet]) :-
+    bType(int),
+    bType(float),
+    bType(string),
+    bType(bool),
+    bType(unit),
+    bType([int, string, unit, float]).
+
+test(bType_F, [fail]) :-
+    bType([int, random, string]).
 
 % whereVar
 test(whereVar, [nondet]) :-
