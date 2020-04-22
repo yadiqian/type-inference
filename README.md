@@ -24,7 +24,7 @@ Then load code with
 
 ## Testing the code
 There are 79 tests in ```typeInf.plt```, which contains unit tests for most predicates, and 20 tests in ```infer.plt```, which contains 20 tests for ```infer``` predicate only.
-To load the test file, do
+To load the test file in SWI prolog interpreter, do
 ```
 ["typeInf.plt"].
 ```
@@ -36,8 +36,14 @@ Then run the test use
 ```
 run_tests.
 ```
+You need to exit SWI prolog interpreter with
+```
+halt.
+```
+then start a new SWI prolog interpreter in order to successfully load a different test.
 
 ## Notes
 Recursive function is also tested in ```infer.plt```.
 
-```infer.plt``` tests fail the second time it is run in the same SWI prolog interpreter possibly because ```gvar()``` is not cleaned up.
+2 of the infer tests fail the second time ```infer.plt``` is run in the same SWI prolog interpreter possibly because ```gvar()``` is not cleaned up. To test this 
+test file again, start a new SWI prolog interpreter.
