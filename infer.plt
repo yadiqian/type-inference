@@ -122,7 +122,7 @@ test(infer_where, [nondet]) :-
     deleteGVars(),
     infer([
       gvLet(a, Ta1, string),
-      where(fminus(a, b), [
+      where([fminus(a, b)], [
           [a, Ta2, ifplus(int, float)], 
           [b, Tb, fminus(float, float)]
         ])
@@ -226,7 +226,7 @@ test(general1, [nondet]) :-
     assertion(Tc==float),
     assertion(T==unit).
 
-% % test general functionality
+% test general functionality
 test(general2, [nondet]) :-
     deleteGVars(),
     infer([
@@ -263,5 +263,148 @@ test(general2, [nondet]) :-
     assertion(Ta==int),
     assertion(Tb==bool),
     assertion(T==unit).
+
+% test general functionality
+test(general3, [nondet]) :-
+  infer([
+      gvLet(v, Tv, bool),
+      if(v, [
+            where([fitimes(a, b)], [
+              [a, Ta1, fminus(A, B)],
+              [b, Tb1, idiv(C, D)]
+            ])
+        ],
+        [
+            where([ifdiv(a, b)], [
+              [a, Ta2, iplus(C, D)],
+              [b, Tb2, fdiv(A, B)]
+            ])
+        ])
+  ], T),
+  assertion(Tv==bool),
+  assertion(Ta1==float),
+  assertion(Tb1==int),
+  assertion(Ta2==int),
+  assertion(Tb2==float),
+  assertion(T==float).
+
+% test general functionality
+test(general4, [nondet]) :-
+  deleteGVars(),
+  infer([
+    gvLet(a, Ta, int),
+    lvLet(a, Ta2, string, [
+      concate(a, A),
+      print(a)
+    ]),
+    fiplus(B, a),
+    -1
+  ], T),
+  gvar(a, int),
+  \+ gvar(a, string),
+  assertion(Ta==int),
+  assertion(Ta2==string),
+  assertion(A==string),
+  assertion(B==float),
+  assertion(T==int).
+
+% test general functionality
+test(general5, [nondet]) :-
+  deleteGVars(),
+  infer([
+    funcLet(myFunc, [int, int, float], [
+      fplus(iToFloat(A), iToFloat(B))
+    ]),
+    funcLet(funcDiv, [int, int, float], [
+      fdiv(iToFloat(A), iToFloat(B))
+    ]),
+    lvLet(a, Ta, iplus(int, int), [
+      lvLet(b, Tb, iminus(int, int), [
+        myFunc(a, b),
+        funcDiv(a, b)
+      ])
+    ])
+  ], T),
+  \+ gvar(a, int),
+  \+ gvar(b, int),
+  assertion(A==int),
+  assertion(B==int),
+  assertion(Ta==int),
+  assertion(Tb==int),
+  assertion(T==float).
+
+% test general functionality
+test(general6, [nondet]) :-
+  deleteGVars(),
+  infer([
+    gvLet(a, Ta, int),
+    gvLet(b, Tb, float),
+    funcLet(fiminus, [float, int, int], [
+      print("start"),
+      iminus(fToInt(A), B)
+    ]),
+    block([
+      [
+        if(==(fiminus(b, a), 0), [
+          lvLet(a, Ta2, ifdiv(B, A), [
+            print(a)
+          ])
+        ],
+        [
+          print(string)
+        ])
+      ],
+      [
+        print("hello world"),
+        fiminus(b, a)
+      ]
+    ])
+  ], T),
+  gvar(a, int),
+  gvar(b, float),
+  \+ gvar(a, float),
+  assertion(Ta==int),
+  assertion(Tb==float),
+  assertion(Ta2==float),
+  assertion(A==float),
+  assertion(B==int),
+  assertion(T==int).
+
+% test general functionality
+test(general7, [nondet]) :-
+  deleteGVars(),
+  infer([
+    gvLet(x, Tx, string),
+    gvLet(y, Ty, int),
+    lvLet(a, Ta, iplus(y, A), [
+      if(>(a, 0), [
+        concate(x, x)
+      ],
+      [
+        print(x),
+        x
+      ])
+    ]),
+    where([
+      itimes(y, z),
+      concate(x, b)
+    ],
+    [
+      [z, Tz, int],
+      [b, Tb, "new string"]
+    ])
+  ], T),
+  gvar(x, string),
+  gvar(y, int),
+  \+ gvar(a, int),
+  \+ gvar(z, int),
+  \+ gvar(b, stirng),
+  assertion(Tx==string),
+  assertion(Ty==int),
+  assertion(Ta==int),
+  assertion(A==int),
+  assertion(Tz==int),
+  assertion(Tb==string),
+  assertion(T==string).
 
 :-end_tests(typeInf).

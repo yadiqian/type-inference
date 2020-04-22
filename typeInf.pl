@@ -126,7 +126,7 @@ typeStatement(lvLet(Name, T, Code, Stmts), Type) :-
 */
 typeStatement(where(Code, Vars), T) :-
     whereVar(Vars),
-    typeExp(Code, T),
+    typeCode(Code, T),
     removeVar(Vars).
 
 /* code blocks
